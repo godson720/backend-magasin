@@ -1,0 +1,160 @@
+{
+  "info": {
+    "name": "Backend Gestion Magasin",
+    "description": "Collection Postman pour tester l'API",
+    "version": "1.0"
+  },
+  "item": [
+    {
+      "name": "Authentification",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "url": {"raw": "http://localhost:3000/auth/login", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["auth", "login"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"admin@magasin.com\",\"mot_de_passe\":\"Admin1234!\"}"
+            }
+          }
+        },
+        {
+          "name": "Créer un utilisateur",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "url": {"raw": "http://localhost:3000/auth/utilisateurs", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["auth", "utilisateurs"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nom\":\"Caissier\",\"email\":\"caissier@magasin.com\",\"mot_de_passe\":\"Password123!\",\"role\":\"caissier\"}"
+            }
+          }
+        },
+        {
+          "name": "Lister les utilisateurs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "url": {"raw": "http://localhost:3000/auth/utilisateurs", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["auth", "utilisateurs"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Produits",
+      "item": [
+        {
+          "name": "Lister les produits",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "url": {"raw": "http://localhost:3000/produits", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["produits"]}
+          }
+        },
+        {
+          "name": "Rechercher des produits",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "url": {"raw": "http://localhost:3000/produits?search=Ordinateur", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["produits"], "query": [{"key": "search", "value": "Ordinateur"}]}
+          }
+        },
+        {
+          "name": "Ajouter un produit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "url": {"raw": "http://localhost:3000/produits", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["produits"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nom\":\"Nouveau Produit\",\"prix\":99.99,\"quantite\":50,\"categorie\":\"Électronique\"}"
+            }
+          }
+        },
+        {
+          "name": "Modifier un produit",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "url": {"raw": "http://localhost:3000/produits/1", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["produits", "1"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nom\":\"Produit Modifié\",\"prix\":1099.99,\"quantite\":20,\"categorie\":\"Électronique\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ventes",
+      "item": [
+        {
+          "name": "Enregistrer une vente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "url": {"raw": "http://localhost:3000/ventes", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["ventes"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\"produit_id\":1,\"quantite\":2}"
+            }
+          }
+        },
+        {
+          "name": "Lister les ventes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "url": {"raw": "http://localhost:3000/ventes", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["ventes"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Statistiques",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"}
+            ],
+            "url": {"raw": "http://localhost:3000/dashboard", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["dashboard"]}
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
