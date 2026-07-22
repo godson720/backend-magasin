@@ -6,6 +6,7 @@ const authRoutes      = require('./routes/authRoutes');
 const produitRoutes   = require('./routes/produitRoutes');
 const venteRoutes     = require('./routes/venteRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const magasinRoutes   = require('./routes/magasinRoutes');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,7 @@ app.use('/auth',      authRoutes);
 app.use('/produits',  produitRoutes);
 app.use('/ventes',    venteRoutes);
 app.use('/dashboard', dashboardRoutes);
+app.use('/magasins',  magasinRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'API Gestion Magasin en ligne' });

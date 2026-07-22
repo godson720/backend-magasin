@@ -1,4 +1,4 @@
-﻿const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 function verifierToken(req, res, next) {
@@ -23,4 +23,18 @@ function autoriserRoles(...roles) {
   };
 }
 
-module.exports = { verifierToken, autoriserRoles };
+function appliquerFiltreMagasin(req, res, next) {
+  const utilisateur = req.utilisateur;
+
+  if (utilisateur.role === 'admin') {
+    req.magasinFiltre = req.query.magasin_id || null;
+  } else {
+    if (!utilisateur.magasin_id) {
+      return res.status(403).json({ message: 'Aucun magasin assigne a ce compte' });
+    }
+    req.magasinFiltre = utilisateur.magasin_id;
+  }
+  next();
+}
+
+module.exports = { verifierToken, autoriserRoles, appliquerFiltreMagasin };

@@ -1,10 +1,9 @@
 const express = require('express');
 const router  = express.Router();
 const pool    = require('../config/db');
-const { verifierToken, autoriserRoles } = require('../middleware/auth');
+const { verifierToken, autoriserRoles, appliquerFiltreMagasin } = require('../middleware/auth');
 
-// POST /ventes — admin et caissier
-router.post('/', verifierToken, autoriserRoles('admin', 'caissier'), async (req, res) => {
+router.post('/', verifierToken, autoriserRoles('admin', 'caissier', 'comptable'), appliquerFiltreMagasin, async (req, res) => {
   const { produit_id, quantite } = req.body;
 
   if (!produit_id || !quantite || quantite <= 0) {
@@ -26,6 +25,11 @@ router.post('/', verifierToken, autoriserRoles('admin', 'caissier'), async (req,
 
     const produit = produits[0];
 
+    if (req.utilisateur.role !== 'admin' && produit.magasin_id !== req.utilisateur.magasin_id) {
+      await conn.rollback();
+      return res.status(403).json({ message: 'Ce produit n appartient pas a votre magasin' });
+    }
+
     if (produit.quantite < quantite) {
       await conn.rollback();
       return res.status(400).json({
@@ -35,16 +39,17 @@ router.post('/', verifierToken, autoriserRoles('admin', 'caissier'), async (req,
     }
 
     const montant = produit.prix * quantite;
+    const magasinVente = req.utilisateur.role === 'admin' ? produit.magasin_id : req.utilisateur.magasin_id;
 
     const [result] = await conn.query(
-      'INSERT INTO ventes (utilisateur_id, produit_id, quantite, montant) VALUES (?, ?, ?, ?)',
-      [req.utilisateur.id, produit_id, quantite, montant]
+      'INSERT INTO ventes (utilisateur_id, produit_id, quantite, montant, magasin_id) VALUES (?, ?, ?, ?, ?)',
+      [req.utilisateur.id, produit_id, quantite, montant, magasinVente]
     );
 
     await conn.commit();
 
     res.status(201).json({
-      message: 'Vente enregistrée',
+      message: 'Vente enregistree',
       id:      result.insertId,
       montant,
       produit: produit.nom,
@@ -58,8 +63,7 @@ router.post('/', verifierToken, autoriserRoles('admin', 'caissier'), async (req,
   }
 });
 
-// GET /ventes — admin seulement
-router.get('/', verifierToken, autoriserRoles('admin'), async (req, res) => {
+router.get('/', verifierToken, autoriserRoles('admin', 'caissier', 'comptable'), appliquerFiltreMagasin, async (req, res) => {
   try {
     const { date } = req.query;
     let query = `
@@ -68,11 +72,16 @@ router.get('/', verifierToken, autoriserRoles('admin'), async (req, res) => {
       FROM   ventes v
       JOIN   produits p     ON v.produit_id     = p.id
       JOIN   utilisateurs u ON v.utilisateur_id = u.id
+      WHERE  1=1
     `;
     const params = [];
 
+    if (req.magasinFiltre) {
+      query += ' AND v.magasin_id = ?';
+      params.push(req.magasinFiltre);
+    }
     if (date) {
-      query += ' WHERE DATE(v.date_vente) = ?';
+      query += ' AND DATE(v.date_vente) = ?';
       params.push(date);
     }
 
